@@ -8,6 +8,7 @@ def number_of_days(year,month):
     '''
     assert isinstance(year,int) and isinstance(month,int)
     assert month>=1 and month<=12
+    assert year>=0
     return calendar.monthrange(year, month)[1]
 
 def number_of_leap_years(year1,year2):
@@ -18,7 +19,8 @@ def number_of_leap_years(year1,year2):
     :return: The number of leap years between the two given year
     '''
     assert isinstance(year1,int) and isinstance(year2,int)
-    assert year2>=year1
+    assert year2>year1
+    assert year1>0 and year2 >0
     return calendar.leapdays(year1, year2+1)
 
 
@@ -34,5 +36,6 @@ def get_day_of_week(year,month,day):
     assert isinstance(year,int) and isinstance(month,int) and isinstance(day,int)
     assert month>=1 and month<=12
     assert day>=1 and day<=calendar.monthrange(year, month)[1]
+    assert year>0
     day_name=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
     return day_name[calendar.weekday(year, month, day)]
