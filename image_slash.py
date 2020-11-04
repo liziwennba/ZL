@@ -1,40 +1,74 @@
 import numpy as np
 import random
-from matplotlib.pylab import subplots, cm
 def gen_rand_slash(m=6, n=6, direction='back'):
+    '''
+    Create a random slash image
+    :param m: Row
+    :param n: Column
+    :param direction: Back or forward
+    :return: The slash image
+    '''
+    assert m>2 and isinstance(m,int)
+    assert n>2 and isinstance(n,int)
+    assert isinstance(direction,str)
     res = np.zeros((m, n))
-    if direction=='back':
-        a=randomint(0,m-2+n-3)
-        if a==0:
-            r=randint(3,min(m,n))
-            for i in r:
-                res[i,i]=1
-        elif a<m-2:
-            rand_1=random.randint(3,min(m-a,n))
-            for i in range(rand_1):
-                res[rand_0+i,i]=1
-        else:
-            rand_0=random.randint(0,n-3)
-            rand_1=random.randint(3,min(n-rand_0,m))
-            res=np.zeros((m,n))
-            for i in range(rand_1):
-                res[i,rand_0+i]=1
+    summ = sum(list(range(min(m-1,n-1)+1)))
+    p =[]
+    p.append(summ)
+    if m-2>0:
+        for i in range(1,m-1):
+            hhh=sum(list(range((min(m-i,n)-1)+1)))
+            p.append(hhh)
+            summ+=(hhh)
+    if n-2>0:
+        for i in range(1,n-1):
+            hhh = sum(list(range((min(n-i,m)-1)+1)))
+            p.append(hhh)
+            summ+=(hhh)
+    p=np.array(p)
+    p=p/summ
+    a = np.random.choice(len(p),p=p.ravel())
+    if a==0:
+        p=[]
+        summ=0
+        for i in range(min(n-1, m - 1)):
+            summ+=min(n-1, m - 1)-i
+            p.append(min(n-1, m - 1)-i)
+        p=np.array(p)
+        p=p/summ
+        aa=np.random.choice(len(p),p=p.ravel())
+        r=random.randint(2,min(n-1,m-1)-aa+1)
+        for i in range(r):
+            res[aa+i,aa+i]=1
+    elif a<m-1:
+        p=[]
+        summ=0
+        for i in range(min(n-1, m-a-1)):
+            summ+=min(n-1, m - a-1)-i
+            p.append(min(n-1, m - a-1)-i)
+        p = np.array(p)
+        p = p / summ
+        aa = np.random.choice(len(p), p=p.ravel())
+        r=random.randint(2,min(n-1, m-a-1)-aa+1)
+        for i in range(r):
+            res[a+aa+i,aa+i]=1
     else:
-        if random.randint(1,2)==1:
-            rand_0=random.randint(0,m-3)
-            rand_1=random.randint(3,min(m-rand_0,n))
-            res=np.zeros((m,n))
-            for i in range(rand_1):
-                res[rand_0+i,n-i-1]=1
-        else:
-            rand_0=random.randint(0,n-3)
-            rand_1=random.randint(3,min(n-rand_0,m))
-            res=np.zeros((m,n))
-            for i in range(rand_1):
-                res[i,n-rand_0-i-1]=1
+        a=a-m+2
+        p=[]
+        summ=0
+        for i in range(min(n-a-1, m-1)):
+            summ+=min(n-1-a, m-1)-i
+            p.append(min(n-a-1, m-1)-i)
+        p = np.array(p)
+        p = p / summ
+        aa = np.random.choice(len(p), p=p.ravel())
+        r=random.randint(2,min(n-a-1, m-1)-aa+1)
+        for i in range(r):
+            res[aa+i,a+aa+i]=1
+
+    if direction!='back':
+        for m in res:
+            for j in range(n // 2):
+                m[j], m[n - 1 - j] = m[n - 1 - j], m[j]
 
     return res
-
-x=np.eye(6)
-fig, ax = subplots()
-ax.imshow(x,cmap=cm.gray_r)
