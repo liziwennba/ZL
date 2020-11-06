@@ -1,5 +1,6 @@
 import numpy as np
 import random
+
 def gen_rand_slash(m=6, n=6, direction='back'):
     '''
     Create a random slash image
@@ -8,8 +9,8 @@ def gen_rand_slash(m=6, n=6, direction='back'):
     :param direction: Back or forward
     :return: The slash image
     '''
-    assert m>2 and isinstance(m,int)
-    assert n>2 and isinstance(n,int)
+    assert m>1 and isinstance(m,int)
+    assert n>1 and isinstance(n,int)
     assert isinstance(direction,str)
     res = np.zeros((m, n))
     summ = sum(list(range(min(m-1,n-1)+1)))
@@ -66,9 +67,10 @@ def gen_rand_slash(m=6, n=6, direction='back'):
         for i in range(r):
             res[aa+i,a+aa+i]=1
 
-    if direction!='back':
+    if direction=='forward':
         for m in res:
             for j in range(n // 2):
                 m[j], m[n - 1 - j] = m[n - 1 - j], m[j]
 
     return res
+
