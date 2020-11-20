@@ -1,0 +1,4 @@
+MPJPE: 86.5271, PA-MPJPE: 54.4428, PVE: 103.8264, ACCEL: 8.8558, ACCEL_ERR: 11.9888,
+
+GroundTruth:    cat  ship  ship plane
+Predicted:    cat truck truck  ship
