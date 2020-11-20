@@ -9,3 +9,5 @@ for index,value in time.items():
     month_yr[temp]+=1
   else:
     month_yr[temp]=1
+GroundTruth:    cat  ship  ship plane
+Predicted:    cat truck truck  ship
