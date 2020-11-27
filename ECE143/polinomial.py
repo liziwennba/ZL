@@ -5,20 +5,28 @@ class Polynomial():
     def __init__(self,a):
         for i in a:
             assert isinstance(i,int) and isinstance(a[i],int)
-        self.a = a
-        max = 0
-        for i in self.a:
-            if max<i:
-                max=i
-        while(self.a[max]==0):
-            self.a.pop(max)
-            if max>0:
-                max-=1
-            else:
-                break
-        for i in range(max):
-            if i not in self.a:
-                self.a[i]=0
+        zero = True
+        for i in a:
+            if a[i]!=0:
+                zero = False
+        if not zero:
+            self.a = a
+            max = 0
+
+            for i in self.a:
+                if max<i:
+                    max=i
+            while(self.a[max]==0):
+                self.a.pop(max)
+                if max>0:
+                    max-=1
+                else:
+                    break
+            for i in range(max):
+                if i not in self.a:
+                    self.a[i]=0
+        else:
+            self.a = {0:0}
     def __repr__(self):
         res=''
         order = []
@@ -40,10 +48,16 @@ class Polynomial():
                     res+='- '+str(abs(self.a[i]))
             elif i ==1:
                 if self.a[i] > 0:
-                    if self.a[i]==1:
-                        res += ' + ' + 'x'
+                    if len(order)>1:
+                        if self.a[i]==1:
+                            res += ' + ' + 'x'
+                        else:
+                            res+=' + '+str(self.a[i])+' x'
                     else:
-                        res+=' + '+str(self.a[i])+' x'
+                        if self.a[i]==1:
+                            res += 'x'
+                        else:
+                            res+=str(self.a[i])+' x'
                 else:
                     if self.a[i]==-1:
                         res += ' - ' + 'x'
@@ -51,10 +65,16 @@ class Polynomial():
                         res += ' - ' +str(abs(self.a[i])) + ' x'
             else:
                 if self.a[i] > 0:
-                    if self.a[i]==1:
-                        res += ' + ' + 'x^('+str(i)+')'
+                    if len(order)>1:
+                        if self.a[i]==1:
+                            res += ' + ' + 'x^('+str(i)+')'
+                        else:
+                            res+=' + '+str(self.a[i]) + ' x^('+str(i)+')'
                     else:
-                        res+=' + '+str(self.a[i]) + ' x^('+str(i)+')'
+                        if self.a[i]==1:
+                            res +=  'x^('+str(i)+')'
+                        else:
+                            res+=str(self.a[i]) + ' x^('+str(i)+')'
                 else:
                     if self.a[i]==-1:
                         res += ' - ' + 'x^('+str(i)+')'
@@ -80,6 +100,7 @@ class Polynomial():
                     res[p]+=c
                 else:
                     res[p]=c
+        #print('hhh',res)
         return Polynomial(res)
     def __rmul__(self, other):
         temp = self.a.copy()
@@ -165,12 +186,16 @@ class Polynomial():
     def subs(self,num):
         res=0
         for i in self.a:
-            res += self.a[i]*(10**i)
+            res += self.a[i]*(num**i)
         return res
     def __eq__(self, other):
         if isinstance(other,int):
-            if other==0 and not self.a:
-                return True
+            if other==0:
+                res = True
+                for i in self.a:
+                    if i:
+                        res=False
+                return res
             elif len(self.a)==1 and 0 in self.a:
                 if self.a[0]==other:
                     return True
@@ -180,55 +205,94 @@ class Polynomial():
             if i in self.a:
                 if other.a[i]!=self.a[i]:
                     return False
-            else:
+            elif other.a[i]!=0:
                 return False
         return True
     def __rtruediv__(self, other):
-
-        pass
-    def __truediv__(self, other):
-        if len(self.a) < len(other.a): return self.a
-        d = len(self.a) - len(other.a)
         T = self.a.copy()
-        R = []
+        for i in self.a:
+            if other%self.a[i]!=0:
+                raise NotImplementedError()
+            else:
+                T[i] = int(other/self.a[i])
+        return Polynomial(T)
+    def __truediv__(self, other):
+        if other==0:
+            raise NotImplementedError()
+        if isinstance(other,int):
+            T = self.a.copy()
+            for i in self.a:
+                if self.a[i] % other != 0:
+                    raise NotImplementedError()
+                else:
+                    T[i] = int(self.a[i]/other)
+            return Polynomial(T)
+        else:
+            if len(self.a) < len(other.a): raise  NotImplementedError()
+            d = len(self.a) - len(other.a)
+            T = self.a.copy()
+            R = []
+            for i in range(d + 1):
+                order = []
+                for j in T:
+                    order.append(j)
+                order = sorted(order)
+                order_o = []
+                for j in other.a:
+                    order_o.append(j)
+                order_o = sorted(order_o)
 
-        for i in range(d + 1):
-            order = []
-            for j in T:
-                order.append(j)
-            order = sorted(order)
-            order_o = []
-            for j in other.a:
-                order_o.append(j)
-            order_o = sorted(order_o)
-            n = T[order[len(order)-1]] / other.a[order[len(order_o) - 1]]
-            R = [n] + R
-            T1 = [0] * (d - i) + [n]
-            #print(T1)
-            poly_temp={}
-            for j in range(len(T1)):
-                poly_temp[j]=int(T1[j])
+                res = True
+                for nn in T:
+                    if T[nn]!=0:
+                        res = False
+                if res:
+                    R = [0]+R
+                    continue
+                #print(T)
+                n = T[order[len(order)-1]] / other.a[order[len(order_o) - 1]]
+                #print(n)
+                R = [n] + R
+                T1 = [0] * (d - i) + [n]
+                #print(T1)
+                poly_temp={}
+                for j in range(len(T1)):
+                    poly_temp[j]=int(T1[j])
+                #print(poly_temp)
+                T2 = Polynomial(poly_temp) *other
 
-            T2 = Polynomial(poly_temp) *other
-            #print(T2)
-            T = (Polynomial(T)-T2).a.copy()
-        if T:
-            raise NotImplementedError("Cannot divide it")
-        res={}
-        for i in range(len(R)):
-            res[i]=int(R[i])
-        return Polynomial(res)
+                #print(T2)
+                T = (Polynomial(T)-T2).a.copy()
+                #print(T)
+            res= True
+            for i in T:
+                if T[i]!=0:
+                    res = False
+            if not res:
+                raise NotImplementedError()
+            res={}
+            for i in range(len(R)):
+                res[i]=int(R[i])
+            #print(res)
+            return Polynomial(res)
+
+
 
 #
-# p=Polynomial({0:8,1:2,3:4})
-# q=Polynomial({0:8,1:2,2:8,4:4})
-# print(p*4 + 5 - 3*p - 1)
-# print(p.subs(10))
-# print(p==q)
-# print(p*q)
-# print(3*p)
-# p = Polynomial({3:-1,2:-1,0:1})
-# q = Polynomial({2:1,1:5})
-# p = Polynomial({2:1,0:-1})
-# q = Polynomial({1:1,0:-1})
-# print(p/q)
+p=Polynomial({0:8,1:2,3:4})
+q=Polynomial({0:8,1:2,2:8,4:4})
+print(p*4 + 5 - 3*p - 1)
+print(p.subs(10))
+print(p==q)
+print((p-p)==0)
+print(p*q)
+print(3*p)
+p = Polynomial({3:-1,2:-1,0:1})
+q = Polynomial({2:1,1:5})
+p = Polynomial({2:1,0:-1})
+q = Polynomial({1:1,0:-1})
+print(p/q)
+print((Polynomial({2:1})/Polynomial({1:1})==Polynomial({1: 1})))
+p3=Polynomial({3:6,2:28,1:46,0:24})
+q3=Polynomial({1:2,0:3})
+print(p3/q3)
